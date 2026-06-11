@@ -1,0 +1,22 @@
+name: Keep Supabase awake
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping de la base de données
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/properties?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+          echo "Réponse Supabase : HTTP $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Ping échoué (HTTP $STATUS)"
+            exit 1
+          fi
