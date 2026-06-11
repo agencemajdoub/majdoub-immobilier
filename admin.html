@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration — Agence Majdoub</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{--navy:#16395C;--navy-deep:#0E2A47;--gold:#C19A2E;--gold-deep:#96701B;--gold-pale:#F3E8C9;--sand:#F8F5EE;--ink:#1C2B3A;--muted:#5C6B7A;--line:#E6E0D2;--red:#B23A3A;--green:#1F7A4D}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Tajawal',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--sand);color:var(--ink);line-height:1.6;padding-bottom:60px}
+.container{width:min(820px,94%);margin-inline:auto}
+header{background:var(--navy-deep);color:#fff;padding:14px 0;margin-bottom:24px}
+header .container{display:flex;justify-content:space-between;align-items:center;gap:10px}
+header h1{font-size:1.1rem;font-weight:800}
+header h1 span{color:var(--gold)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;padding:11px 18px;font-weight:800;font-size:.95rem;cursor:pointer;font-family:inherit;transition:filter .2s}
+.btn:hover{filter:brightness(1.08)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:#fff}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
+.btn-red{background:var(--red);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-sm{padding:7px 12px;font-size:.82rem;border-radius:8px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:18px;box-shadow:0 4px 14px rgba(14,42,71,.06)}
+h2{color:var(--navy);font-size:1.15rem;margin-bottom:14px}
+label{display:block;font-size:.78rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;font-size:1rem;background:#fff}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);outline:none}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:560px){.row3{grid-template-columns:1fr 1fr}}
+.hint{font-size:.82rem;color:var(--muted);margin-top:4px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--navy-deep);color:#fff;padding:12px 22px;border-radius:999px;font-weight:700;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .3s;z-index:99;max-width:92%;text-align:center}
+#toast.show{opacity:1}
+#toast.err{background:var(--red)}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.thumb{position:relative;width:84px;height:64px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb button{position:absolute;top:2px;right:2px;width:22px;height:22px;border:none;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:.8rem;cursor:pointer;line-height:1}
+.prop{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;flex-wrap:wrap}
+.prop img,.prop .noimg{width:88px;height:66px;object-fit:cover;border-radius:8px;flex-shrink:0;background:linear-gradient(140deg,#1B4470,#2E6CA8)}
+.prop .info{flex:1;min-width:170px}
+.prop .info b{display:block;color:var(--navy)}
+.prop .info span{font-size:.86rem;color:var(--muted)}
+.prop .price{font-weight:800;color:var(--gold-deep)}
+.prop .acts{display:flex;gap:8px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:.72rem;font-weight:800;padding:2px 10px;border-radius:999px;margin-inline-start:6px;vertical-align:middle}
+.tag.av{background:#E3F2E9;color:var(--green)}
+.tag.sold{background:#F6E3E3;color:var(--red)}
+.hidden{display:none!important}
+#configWarn{background:#FFF4DE;border:1.5px solid var(--gold);color:#6B4F0E;padding:14px 18px;border-radius:12px;margin-bottom:18px;font-size:.92rem}
+progress{width:100%;height:8px;margin-top:10px}
+</style>
+</head>
+<body>
+<header><div class="container">
+  <h1>🏠 Administration — <span>Agence Majdoub</span></h1>
+  <button class="btn btn-ghost btn-sm hidden" id="logoutBtn">Déconnexion</button>
+</div></header>
+
+<div class="container">
+  <div id="configWarn" class="hidden">⚠️ Les clés Supabase ne sont pas configurées dans ce fichier (ou pas d'Internet). Ouvrez <b>admin.html</b> et collez votre URL + clé anon en haut du script.</div>
+
+  <!-- LOGIN -->
+  <div class="card" id="loginView">
+    <h2>Connexion</h2>
+    <label for="email">Email</label>
+    <input type="email" id="email" autocomplete="username" placeholder="tarek@exemple.com">
+    <label for="password">Mot de passe</label>
+    <input type="password" id="password" autocomplete="current-password">
+    <div style="margin-top:16px"><button class="btn btn-gold" id="loginBtn" style="width:100%">Se connecter</button></div>
+  </div>
+
+  <!-- APP -->
+  <div id="appView" class="hidden">
+    <div class="card">
+      <h2 id="formTitle">➕ Ajouter un bien</h2>
+      <label>Titre (français) *</label>
+      <input id="f_title_fr" placeholder="Ex : Villa S+4 avec jardin">
+      <label>Titre (arabe) — optionnel</label>
+      <input id="f_title_ar" dir="rtl" placeholder="مثال: فيلا S+4 مع حديقة">
+      <div class="row">
+        <div><label>Opération *</label>
+          <select id="f_purpose"><option value="sale">Vente</option><option value="rent">Location</option></select></div>
+        <div><label>Type *</label>
+          <select id="f_type">
+            <option value="apt">Appartement</option><option value="house">Maison / Villa</option>
+            <option value="land">Terrain</option><option value="shop">Local commercial</option>
+          </select></div>
+      </div>
+      <div class="row">
+        <div><label>Délégation *</label>
+          <select id="f_delegation">
+            <option value="medina">Gabès Médina</option><option value="ouest">Gabès Ouest</option>
+            <option value="sud">Gabès Sud</option><option value="ghannouch">Ghannouch</option>
+            <option value="hamma">El Hamma</option><option value="hammaouest">El Hamma Ouest</option>
+            <option value="mareth">Mareth</option><option value="matmata">Matmata</option>
+            <option value="nvmatmata">Nouvelle Matmata</option><option value="metouia">Métouia</option>
+            <option value="oudhref">Oudhref</option><option value="menzelhabib">Menzel El Habib</option>
+            <option value="toujane">Toujane</option>
+          </select></div>
+        <div><label>Prix (TND) *</label><input type="number" id="f_price" min="0" placeholder="Ex : 250000"></div>
+      </div>
+      <label>Quartier / précision (français) — optionnel</label>
+      <input id="f_loc_fr" placeholder="Ex : Chatt Essalem, Gabès Médina">
+      <label>Quartier / précision (arabe) — optionnel</label>
+      <input id="f_loc_ar" dir="rtl" placeholder="مثال: شط السلام، قابس المدينة">
+      <div class="row3">
+        <div><label>Surface (m²)</label><input type="number" id="f_area" min="0"></div>
+        <div><label>Chambres</label><input type="number" id="f_beds" min="0" value="0"></div>
+        <div><label>Salles de bain</label><input type="number" id="f_baths" min="0" value="0"></div>
+      </div>
+      <label>Photos</label>
+      <input type="file" id="f_photos" multiple accept="image/*">
+      <p class="hint">Les photos sont compressées automatiquement. La 1ère photo = photo principale.</p>
+      <div class="thumbs" id="thumbs"></div>
+      <progress id="prog" max="100" value="0" class="hidden"></progress>
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-gold" id="saveBtn" style="flex:1">💾 Publier</button>
+        <button class="btn btn-ghost hidden" id="cancelEdit">Annuler</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📋 Mes biens</h2>
+      <div id="propList"><p class="hint">Chargement…</p></div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============ SUPABASE CONFIG — collez vos clés ici ============ */
+const SUPABASE_URL = "https://qmpvtxqloatxdndrhmla.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtcHZ0eHFsb2F0eGRuZHJobWxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDcyNDgsImV4cCI6MjA5Njc4MzI0OH0.9r2wY59RJrQiPCfvgDv1Kc_VkWyWR--atnXH8SCN40M";
+
+const $ = id => document.getElementById(id);
+let sb = null, editId = null, existingPhotos = [];
+
+const TYPE_LBL = {apt:"Appartement", house:"Maison / Villa", land:"Terrain", shop:"Local commercial"};
+
+function toast(msg, err=false){
+  const t = $("toast"); t.textContent = msg;
+  t.className = err ? "show err" : "show";
+  setTimeout(()=>t.className="", 3500);
+}
+
+/* ---------- INIT ---------- */
+if (window.supabase && !SUPABASE_URL.includes("COLLE")) {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  sb.auth.onAuthStateChange((_e, session)=> setView(!!session));
+  sb.auth.getSession().then(({data})=> setView(!!data.session));
+} else {
+  $("configWarn").classList.remove("hidden");
+}
+
+function setView(logged){
+  $("loginView").classList.toggle("hidden", logged);
+  $("appView").classList.toggle("hidden", !logged);
+  $("logoutBtn").classList.toggle("hidden", !logged);
+  if(logged) loadProps();
+}
+
+/* ---------- AUTH ---------- */
+$("loginBtn").addEventListener("click", async ()=>{
+  if(!sb) return toast("Configurez d'abord les clés Supabase.", true);
+  const {error} = await sb.auth.signInWithPassword({
+    email: $("email").value.trim(), password: $("password").value
+  });
+  if(error) toast("Échec : " + error.message, true);
+});
+$("password").addEventListener("keydown", e=>{ if(e.key==="Enter") $("loginBtn").click(); });
+$("logoutBtn").addEventListener("click", ()=> sb.auth.signOut());
+
+/* ---------- PHOTOS ---------- */
+function compress(file){
+  return new Promise(res=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const max = 1400;
+      let w = img.width, h = img.height;
+      if(Math.max(w,h) > max){ const k = max/Math.max(w,h); w = Math.round(w*k); h = Math.round(h*k); }
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      c.toBlob(b=>res(b), "image/jpeg", .82);
+      URL.revokeObjectURL(img.src);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function renderThumbs(){
+  $("thumbs").innerHTML = existingPhotos.map((url,i)=>`
+    <div class="thumb"><img src="${url}"><button data-i="${i}" title="Retirer">✕</button></div>`).join("");
+  $("thumbs").querySelectorAll("button").forEach(b=>
+    b.addEventListener("click", ()=>{ existingPhotos.splice(+b.dataset.i,1); renderThumbs(); }));
+}
+
+/* ---------- SAVE (add or edit) ---------- */
+$("saveBtn").addEventListener("click", async ()=>{
+  const title = $("f_title_fr").value.trim();
+  const price = parseFloat($("f_price").value);
+  if(!title || isNaN(price)) return toast("Titre et prix sont obligatoires.", true);
+
+  $("saveBtn").disabled = true;
+  const id = editId || crypto.randomUUID();
+  const files = [...$("f_photos").files];
+  const photos = [...existingPhotos];
+
+  try{
+    if(files.length){
+      $("prog").classList.remove("hidden");
+      for(let i=0; i<files.length; i++){
+        const blob = await compress(files[i]);
+        const path = `${id}/${Date.now()}-${i}.jpg`;
+        const {error} = await sb.storage.from("photos").upload(path, blob, {contentType:"image/jpeg"});
+        if(error) throw error;
+        photos.push(sb.storage.from("photos").getPublicUrl(path).data.publicUrl);
+        $("prog").value = ((i+1)/files.length)*100;
+      }
+    }
+    const row = {
+      id,
+      title_fr: title,
+      title_ar: $("f_title_ar").value.trim() || null,
+      purpose: $("f_purpose").value,
+      type: $("f_type").value,
+      delegation: $("f_delegation").value,
+      location_fr: $("f_loc_fr").value.trim() || null,
+      location_ar: $("f_loc_ar").value.trim() || null,
+      price,
+      area: parseInt($("f_area").value)||0,
+      beds: parseInt($("f_beds").value)||0,
+      baths: parseInt($("f_baths").value)||0,
+      photos
+    };
+    const {error} = editId
+      ? await sb.from("properties").update(row).eq("id", editId)
+      : await sb.from("properties").insert(row);
+    if(error) throw error;
+    toast(editId ? "✅ Bien modifié !" : "✅ Bien publié ! Il est en ligne.");
+    resetForm(); loadProps();
+  }catch(e){ toast("Erreur : " + e.message, true); }
+  $("saveBtn").disabled = false;
+  $("prog").classList.add("hidden"); $("prog").value = 0;
+});
+
+function resetForm(){
+  editId = null; existingPhotos = [];
+  ["f_title_fr","f_title_ar","f_price","f_loc_fr","f_loc_ar","f_area"].forEach(i=>$(i).value="");
+  $("f_beds").value = 0; $("f_baths").value = 0; $("f_photos").value = "";
+  $("formTitle").textContent = "➕ Ajouter un bien";
+  $("saveBtn").textContent = "💾 Publier";
+  $("cancelEdit").classList.add("hidden");
+  renderThumbs();
+}
+$("cancelEdit").addEventListener("click", resetForm);
+
+/* ---------- LIST / EDIT / SOLD / DELETE ---------- */
+async function loadProps(){
+  const {data, error} = await sb.from("properties").select("*").order("created_at",{ascending:false});
+  if(error){ $("propList").innerHTML = `<p class="hint">Erreur : ${error.message}</p>`; return; }
+  if(!data.length){ $("propList").innerHTML = `<p class="hint">Aucun bien pour l'instant. Ajoutez le premier ci-dessus 👆</p>`; return; }
+  $("propList").innerHTML = data.map(p=>`
+    <div class="prop">
+      ${p.photos?.[0] ? `<img src="${p.photos[0]}">` : `<div class="noimg"></div>`}
+      <div class="info">
+        <b>${p.title_fr}<span class="tag ${p.status==="available"?"av":"sold"}">${p.status==="available"?"En ligne":"Vendu"}</span></b>
+        <span>${TYPE_LBL[p.type]||p.type} · ${p.purpose==="sale"?"Vente":"Location"} · <span class="price">${Number(p.price).toLocaleString("fr-FR")} TND</span></span>
+      </div>
+      <div class="acts">
+        <button class="btn btn-navy btn-sm" data-act="edit" data-id="${p.id}">✏️ Modifier</button>
+        <button class="btn ${p.status==="available"?"btn-ghost":"btn-green"} btn-sm" data-act="toggle" data-id="${p.id}">${p.status==="available"?"Marquer vendu":"Remettre en ligne"}</button>
+        <button class="btn btn-red btn-sm" data-act="del" data-id="${p.id}">🗑</button>
+      </div>
+    </div>`).join("");
+
+  $("propList").querySelectorAll("button").forEach(b=>{
+    const id = b.dataset.id, act = b.dataset.act;
+    b.addEventListener("click", async ()=>{
+      const p = data.find(x=>x.id===id);
+      if(act==="edit"){
+        editId = id; existingPhotos = p.photos || [];
+        $("f_title_fr").value = p.title_fr; $("f_title_ar").value = p.title_ar||"";
+        $("f_purpose").value = p.purpose; $("f_type").value = p.type;
+        $("f_delegation").value = p.delegation; $("f_price").value = p.price;
+        $("f_loc_fr").value = p.location_fr||""; $("f_loc_ar").value = p.location_ar||"";
+        $("f_area").value = p.area||""; $("f_beds").value = p.beds||0; $("f_baths").value = p.baths||0;
+        $("formTitle").textContent = "✏️ Modifier le bien";
+        $("saveBtn").textContent = "💾 Enregistrer";
+        $("cancelEdit").classList.remove("hidden");
+        renderThumbs(); window.scrollTo({top:0, behavior:"smooth"});
+      }
+      if(act==="toggle"){
+        const {error} = await sb.from("properties")
+          .update({status: p.status==="available" ? "sold" : "available"}).eq("id", id);
+        error ? toast("Erreur : "+error.message, true) : loadProps();
+      }
+      if(act==="del"){
+        if(!confirm(`Supprimer définitivement « ${p.title_fr} » ?`)) return;
+        const {data:files} = await sb.storage.from("photos").list(id);
+        if(files?.length) await sb.storage.from("photos").remove(files.map(f=>`${id}/${f.name}`));
+        const {error} = await sb.from("properties").delete().eq("id", id);
+        error ? toast("Erreur : "+error.message, true) : (toast("Bien supprimé."), loadProps());
+      }
+    });
+  });
+}
+</script>
+</body>
+</html>
